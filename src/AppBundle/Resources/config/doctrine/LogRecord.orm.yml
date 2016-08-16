@@ -1,0 +1,14 @@
+AppBundle\Entity\LogRecord:
+    type: entity
+    table: log_records
+    id:
+        id:
+            type: integer
+            generator: { strategy: AUTO }
+
+    fields:
+        datetime:
+            type: datetime
+        record:
+            type: string
+            length: 2000
