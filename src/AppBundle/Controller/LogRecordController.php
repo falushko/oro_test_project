@@ -34,6 +34,8 @@ class LogRecordController extends FOSRestController
     {
         $this->get('app.database.refresher')->updateLogRecordsWithNewLogs();
 
+        exit();
+
         $logs = $this->get('doctrine.orm.entity_manager.abstract')
             ->getRepository('AppBundle:LogRecord')
             ->getLogs($request);
