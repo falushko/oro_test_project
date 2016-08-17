@@ -1,6 +1,7 @@
 AppBundle\Entity\LogRecord:
     type: entity
     table: log_records
+    repositoryClass: AppBundle\Entity\Repository\LogRecordRepository
     id:
         id:
             type: integer

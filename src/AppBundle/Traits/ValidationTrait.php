@@ -32,6 +32,4 @@ trait ValidationTrait
     {
         return $this->errors;
     }
-
-
 }
