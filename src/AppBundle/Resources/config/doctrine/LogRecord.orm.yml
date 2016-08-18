@@ -2,6 +2,7 @@ AppBundle\Entity\LogRecord:
     type: entity
     table: log_records
     repositoryClass: AppBundle\Entity\Repository\LogRecordRepository
+
     id:
         id:
             type: integer
@@ -13,3 +14,6 @@ AppBundle\Entity\LogRecord:
         record:
             type: string
             length: 2000
+        fullRecord:
+            type: string
+            length: 255

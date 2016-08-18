@@ -3,19 +3,23 @@
 namespace AppBundle\Services;
 
 use AppBundle\Entity\FileLastLine;
+use AppBundle\Entity\LogRecord;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class DatabaseRefresher
 {
     const LOG_PATTERN = '/([\s\S]+) - - (\[[\s\S]{26}\]) ([\s\S]+)/';
 
     private $entityManager;
+    private $validatorInterface;
 
-    public function __construct(EntityManager $entityManager)
+    public function __construct(EntityManager $entityManager, ValidatorInterface $validatorInterface)
     {
         $this->entityManager = $entityManager;
+        $this->validatorInterface = $validatorInterface;
     }
 
     public function updateLogRecordsWithNewLogs()
@@ -29,43 +33,55 @@ class DatabaseRefresher
 
             if ($file->isDir()) continue;
 
-            $openedFile = $file->openFile();
-            $fileName = $openedFile->getBasename();
+            $file = $file->openFile();
 
-            $fileLastLine = $this->entityManager
-                ->getRepository('AppBundle:FileLastLine')
-                ->findOneBy(['fileName' => $fileName]);
+            $fileLastLine = $this->getFileLastLine($file);
 
-            if (empty($fileLastLine)) {
-                $fileLastLine = new FileLastLine();
-                $fileLastLine->setFileName($fileName);
-            } else {
-                $openedFile->seek($fileLastLine->getLine() - 1);
-            }
-
-            while (!$openedFile->eof()) {
-
-                //todo make all magic here
+            while (!$file->eof()) {
 
                 $result = [];
 
-                preg_match(self::LOG_PATTERN, $openedFile->fgets(), $result);
+                $matched = preg_match(self::LOG_PATTERN, $file->fgets(), $result);
 
-                // [07/Mar/2004:22:45:46 -0800]
+                if (!$matched) continue;
 
-                $dateTime = \DateTime::createFromFormat('d#M#Y#H#i#s T', $result[2]);
+                $logRecord = new LogRecord();
+                $logRecord->setDatetime(\DateTime::createFromFormat('d#M#Y#H#i#s O', trim($result[2], '[]')));
+                $logRecord->setRecord($result[1] . ' - ' . $result[3]);
+                $logRecord->setFullRecord($result[0]);
 
 
-                dump($dateTime); exit();
-
-                echo $openedFile->key() + 2 . ' ' . $openedFile->fgets();
+                if (!$logRecord->isValid($this->validatorInterface, 'new')) {
+                    die('123');
+                };
             }
 
-            $fileLastLine->setLine($openedFile->key() + 1);
+            $fileLastLine->setLine($file->key() + 1);
             $this->entityManager->persist($fileLastLine);
             $this->entityManager->flush();
-
-            echo "\r\n";
         }
+    }
+
+    /**
+     * @param \SplFileObject $file
+     * @return FileLastLine
+     * Get FileLastLine if already exists in database. If not - create new.
+     */
+    private function getFileLastLine(\SplFileObject $file)
+    {
+        $fileName = $file->getBasename();
+
+        $fileLastLine = $this->entityManager
+            ->getRepository('AppBundle:FileLastLine')
+            ->findOneBy(['fileName' => $fileName]);
+
+        if (empty($fileLastLine)) {
+            $fileLastLine = new FileLastLine();
+            $fileLastLine->setFileName($fileName);
+        } else {
+            $file->seek($fileLastLine->getLine() - 1);
+        }
+
+        return $fileLastLine;
     }
 }

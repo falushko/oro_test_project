@@ -1,4 +1,4 @@
 services:
     app.database.refresher:
         class: AppBundle\Services\DatabaseRefresher
-        arguments: ["@doctrine.orm.entity_manager"]
+        arguments: ["@doctrine.orm.entity_manager", "@validator"]
