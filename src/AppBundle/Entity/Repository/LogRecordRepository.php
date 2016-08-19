@@ -14,9 +14,15 @@ class LogRecordRepository extends EntityRepository
 
         $logs = $this->createQueryBuilder('log')->select('log.datetime, log.record');
 
-        //applying datetime filters if they specified
+        /**
+         * Applying datetime filters if they specified
+         */
         if (!empty($request->get('datetime'))) {
-            $i = 0; //unique identifier for parameters placeholders
+
+            /**
+             * Unique identifier for parameters placeholders
+             */
+            $i = 0;
 
             foreach ($request->get('datetime') as $datetime) {
                 $logs = $logs
@@ -28,13 +34,26 @@ class LogRecordRepository extends EntityRepository
             }
         }
 
-//        if (!empty($request->get('text'))) {
-//
-//        }
-//
-//        if (!empty($request->get('regex'))) {
-//
-//        }
+        /**
+         * Applying text and/or regex filters if they provided
+         */
+        if (!empty($request->get('text')) && !empty($request->get('regex'))) {
+            $logs = $logs
+                ->andWhere('log.record LIKE :text')
+                ->orWhere('REGEXP(log.record, :regex) = true')
+                ->setParameter('text', '%' . $request->get('text') . '%')
+                ->setParameter('regex', $request->get('regex'));
+
+        } elseif (!empty($request->get('text'))) {
+            $logs = $logs
+                ->andWhere('log.record LIKE :text')
+                ->setParameter('text', '%' . $request->get('text') . '%');
+
+        } elseif (!empty($request->get('regex'))) {
+            $logs = $logs
+                ->andWhere('REGEXP(log.record, :regex) = true')
+                ->setParameter('regex', $request->get('regex'));
+        }
 
         $logs = $logs->orderBy('log.datetime', 'DESC')
             ->getQuery()
@@ -42,8 +61,26 @@ class LogRecordRepository extends EntityRepository
             ->setFirstResult($offset)
             ->getResult();
 
-        //todo format datetime with timestamps
+        $logs = $this->formatDates($logs);
 
         return $logs;
+    }
+
+    /**
+     * @param $logs
+     * @return array
+     * Format datetime in database to timestamp.
+     * I could use something like JMS Serializer for it bit I didn't.
+     */
+    private function formatDates($logs)
+    {
+        $result = [];
+
+        foreach ($logs as $log) {
+            $log['datetime'] = $log['datetime']->getTimestamp();
+            $result[] = $log;
+        }
+
+        return $result;
     }
 }
