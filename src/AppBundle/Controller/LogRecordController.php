@@ -14,15 +14,24 @@ use FOS\RestBundle\Controller\Annotations as FOS;
 class LogRecordController extends FOSRestController
 {
     /**
-     * @FOS\Get("log_records")
+     * @FOS\Post("log_records")
      *
-     * date [
-     *  [start, end],
-     *  [start, end]
-     * ]
+     * {
+     *      "datetime": [
+     *          {
+     *              "start" : "3/08/2005 14:00:45",
+     *              "end" : "4/08/2005 12:56:34"
+     *          },
+     *          {
+     *              "start": "3/08/2005 14:00:45",
+     *              "end": "4/08/2005 12:56:34"
+     *          },
+     *          ...
+     *      ],
      *
-     * text []
-     * regexp []
+     *      "text" : "some text ololo",
+     *      "regex" : "some regex"
+     * }
      *
      * limit
      * offset
@@ -30,19 +39,14 @@ class LogRecordController extends FOSRestController
      * @param Request $request
      * @return JsonResponse
      */
-    public function getLogRecordsAction(Request $request)
+    public function postLogRecordsAction(Request $request)
     {
-        $this->get('app.database.refresher')->updateLogRecordsWithNewLogs();
+        //$this->get('app.database.refresher')->updateLogRecordsWithNewLogs();
 
-        exit();
-
-        $logs = $this->get('doctrine.orm.entity_manager.abstract')
+        $logs = $this->get('doctrine.orm.entity_manager')
             ->getRepository('AppBundle:LogRecord')
             ->getLogs($request);
 
-        return new JsonResponse([
-            'title' => 'Success!',
-            'logs' => $logs
-        ], JsonResponse::HTTP_OK);
+        return new JsonResponse($logs, JsonResponse::HTTP_OK);
     }
 }

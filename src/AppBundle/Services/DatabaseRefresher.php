@@ -29,31 +29,25 @@ class DatabaseRefresher
 
         foreach ($finder as $file) {
 
-            if ($file instanceof SplFileInfo);
+            if ($file instanceof SplFileInfo); //to enable autocomplete
 
             if ($file->isDir()) continue;
 
             $file = $file->openFile();
-
             $fileLastLine = $this->getFileLastLine($file);
 
             while (!$file->eof()) {
 
                 $result = [];
-
                 $matched = preg_match(self::LOG_PATTERN, $file->fgets(), $result);
 
                 if (!$matched) continue;
 
-                $logRecord = new LogRecord();
-                $logRecord->setDatetime(\DateTime::createFromFormat('d#M#Y#H#i#s O', trim($result[2], '[]')));
-                $logRecord->setRecord($result[1] . ' - ' . $result[3]);
-                $logRecord->setFullRecord($result[0]);
+                $logRecord = new LogRecord($result);
 
+                if (!$logRecord->isValid($this->validatorInterface, 'new')) continue;
 
-                if (!$logRecord->isValid($this->validatorInterface, 'new')) {
-                    die('123');
-                };
+                $this->entityManager->persist($logRecord);
             }
 
             $fileLastLine->setLine($file->key() + 1);

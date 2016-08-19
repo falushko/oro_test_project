@@ -12,6 +12,10 @@ Vagrant.configure(2) do |config|
     owner: "vagrant", group: "vagrant",
     mount_options: ["dmode=777,fmode=777"]
 
+  config.vm.synced_folder "./var/sessions", "/vagrant/var/sessions",
+    owner: "vagrant", group: "vagrant",
+    mount_options: ["dmode=777,fmode=777"]
+
   config.vm.network "forwarded_port", guest: 80, host: 8051
   config.vm.network "forwarded_port", guest: 3306, host: 8052
 end

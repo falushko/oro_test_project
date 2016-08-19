@@ -13,6 +13,13 @@ class LogRecord
     private $record;
     private $fullRecord;
 
+    public function __construct($result)
+    {
+        $this->datetime = \DateTime::createFromFormat('d#M#Y#H#i#s O', trim($result[2], '[]'));
+        $this->record = $result[1] . ' - ' . $result[3];
+        $this->fullRecord = $result[0];
+    }
+
     public function getDatetime()
     {
         return $this->datetime;
