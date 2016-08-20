@@ -17,3 +17,26 @@ Contains last line that was checked in each file. Needed to start database refre
 not from the very start, but from last line, where we stopped.
 
 I chose MySQL because of my experience with it. I could try to use Redis here, but I didn't.
+
+Request example:
+
+{
+   "datetime": [
+        {
+            "start" : "3/08/2005 14:00:45",
+            "end" : "4/08/2005 12:56:34"
+        },
+        {
+            "start": "3/08/2005 14:00:45",
+            "end": "4/08/2005 12:56:34"
+        },
+        ...
+   ],
+
+   "text" : "some text",
+   "regex" : "some regex"
+}
+
+limit and offset in headers.
+
+See documentation on http://localhost:8051/apidoc/index.html
