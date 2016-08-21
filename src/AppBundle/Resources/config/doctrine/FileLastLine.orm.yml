@@ -1,0 +1,14 @@
+AppBundle\Entity\FileLastLine:
+    type: entity
+    table: files_last_lines
+    id:
+        id:
+            type: integer
+            generator: { strategy: AUTO }
+
+    fields:
+        fileName:
+            type: string
+            length: 255
+        line:
+            type: integer

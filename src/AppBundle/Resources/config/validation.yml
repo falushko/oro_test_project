@@ -1,0 +1,20 @@
+AppBundle\Entity\LogRecord:
+#    constraints:
+#        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+#            fields: fullRecord
+#            message: User with that email already exist.
+#            groups: new
+
+    properties:
+        datetime:
+            - NotBlank:
+                message: No datetime provided.
+                groups: new
+        record:
+            - NotBlank:
+                message: No record provided.
+                groups: new
+        fullRecord:
+            - NotBlank:
+                message: No fullRecord provided.
+                groups: new
