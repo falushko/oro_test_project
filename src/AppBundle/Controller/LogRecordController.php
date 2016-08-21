@@ -10,6 +10,17 @@ use FOS\RestBundle\Controller\Annotations as FOS;
 /**
  * Class LogRecordController
  * @package AppBundle\Controller
+ * @IgnoreAnnotation({
+ *     "apiName",
+ *     "apiGroup",
+ *     "apiParam",
+ *     "apiSuccess",
+ *     "apiSuccessExample",
+ *     "apiError",
+ *     "apiErrorExample",
+ *     "apiDescription",
+ *     "apiVersion"
+ * })
  */
 class LogRecordController extends FOSRestController
 {
